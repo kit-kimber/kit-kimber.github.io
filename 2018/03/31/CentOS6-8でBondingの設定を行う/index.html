@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>CentOS6.8でBondingの設定を行う | 生死無常エンジニアリング</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="自分がはてなブログに書いていた記事の移植です。 CentOS6.8でBonding(チーミング）する手順です。 NetworkManagerの無効化まずNetworkManagerを無効化します。   12sudo service NetworkManager stopsudo chkconfig NetworkManager off Bondingの準備bondingモジュールのエイリアスをbo">
+<meta name="keywords" content="Linux,CentOS6.8">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CentOS6.8でBondingの設定を行う">
+<meta property="og:url" content="https://kit-kimber.github.io/2018/03/31/CentOS6-8でBondingの設定を行う/index.html">
+<meta property="og:site_name" content="生死無常エンジニアリング">
+<meta property="og:description" content="自分がはてなブログに書いていた記事の移植です。 CentOS6.8でBonding(チーミング）する手順です。 NetworkManagerの無効化まずNetworkManagerを無効化します。   12sudo service NetworkManager stopsudo chkconfig NetworkManager off Bondingの準備bondingモジュールのエイリアスをbo">
+<meta property="og:locale" content="ja">
+<meta property="og:updated_time" content="2018-03-31T13:55:53.831Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="CentOS6.8でBondingの設定を行う">
+<meta name="twitter:description" content="自分がはてなブログに書いていた記事の移植です。 CentOS6.8でBonding(チーミング）する手順です。 NetworkManagerの無効化まずNetworkManagerを無効化します。   12sudo service NetworkManager stopsudo chkconfig NetworkManager off Bondingの準備bondingモジュールのエイリアスをbo">
+  
+  
+  <link href="//fonts.googleapis.com/css?family=Ubuntu" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+</head>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">生死無常エンジニアリング</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">ソフトウェア寄りの技術ブログ</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="sub-nav">
+        
+          <a id="nav-home-icon" class="nav-icon" href="/"></a>
+        
+          <a id="nav-about-icon" class="nav-icon" href="/about"></a>
+        
+        
+      </nav>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-CentOS6-8でBondingの設定を行う" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      CentOS6.8でBondingの設定を行う
+    </h1>
+  
+
+      </header>
+    
+    <time class="article-date" datetime="2018-03-31T13:35:13.000Z" itemprop="datePublished">03-31-2018</time>
+    
+  </div>
+  <div class="article-inner">
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>自分がはてなブログに書いていた記事の移植です。</p>
+<p>CentOS6.8でBonding(チーミング）する手順です。</p>
+<h1 id="NetworkManagerの無効化"><a href="#NetworkManagerの無効化" class="headerlink" title="NetworkManagerの無効化"></a>NetworkManagerの無効化</h1><p>まずNetworkManagerを無効化します。  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo service NetworkManager stop</span><br><span class="line">sudo chkconfig NetworkManager off</span><br></pre></td></tr></table></figure>
+<h1 id="Bondingの準備"><a href="#Bondingの準備" class="headerlink" title="Bondingの準備"></a>Bondingの準備</h1><p>bondingモジュールのエイリアスをbond0に張ります。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo echo &quot;alias bonding bond0&quot; &gt;&gt; /etc/modprobe.d/bonding.conf</span><br></pre></td></tr></table></figure>
+<p>Bondingモジュールを有効化します。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo modprobe bonding</span><br></pre></td></tr></table></figure>
+<p>モジュール有効化を確認します。  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">lsmod | grep bonding</span><br></pre></td></tr></table></figure>
+<h1 id="BondingとNICの設定"><a href="#BondingとNICの設定" class="headerlink" title="BondingとNICの設定"></a>BondingとNICの設定</h1><p>今回はBondingを行うだけなので固定IPではなく、DHCPでIPアドレスを取得します。</p>
+<h2 id="bond0の設定-etc-sysconfig-network-script-ifcfg-bond0"><a href="#bond0の設定-etc-sysconfig-network-script-ifcfg-bond0" class="headerlink" title="bond0の設定(/etc/sysconfig/network-script/ifcfg-bond0)"></a>bond0の設定(/etc/sysconfig/network-script/ifcfg-bond0)</h2><p>今回はmodeを１にしているので負荷分散はされません。<br>普段はプライマリに設定したNICが使用され、プライマリ側がダメになったら他のNICでの通信に切り替わります。<br>miimonで設定している値はNICの状態を監視する頻度です。<br>単位はミリ秒です。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">DEVICE=bond0</span><br><span class="line">BOOTPROTO=dhcp</span><br><span class="line">ONBOOT=yes</span><br><span class="line">BONDING_OPTS=&quot;mode=1 primary=eth0 miimon=500&quot;</span><br></pre></td></tr></table></figure>
+<h2 id="eth0の設定-etc-sysconfig-network-script-ifcfg-eth0-ifcfg-eth1"><a href="#eth0の設定-etc-sysconfig-network-script-ifcfg-eth0-ifcfg-eth1" class="headerlink" title="eth0の設定(/etc/sysconfig/network-script/ifcfg-eth0,ifcfg-eth1)"></a>eth0の設定(/etc/sysconfig/network-script/ifcfg-eth0,ifcfg-eth1)</h2><p>普段の設定とは別にMASTERとSLAVEの設定を行う必要があります。<br>MASTERはBondingに使用するデバイスを指定し、<br>SLAVEでは自らをSLAVEであることを示します。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">DEVICE=eth0</span><br><span class="line">BOOTPROTO=none</span><br><span class="line">ONBOOT=yes</span><br><span class="line">MASTER=bond0</span><br><span class="line">SLAVE=yes</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">DEVICE=eth1</span><br><span class="line">BOOTPROTO=none</span><br><span class="line">ONBOOT=yes</span><br><span class="line">MASTER=bond0</span><br><span class="line">SLAVE=yes</span><br></pre></td></tr></table></figure>
+<h2 id="networkの再起動"><a href="#networkの再起動" class="headerlink" title="networkの再起動"></a>networkの再起動</h2><p>ここで失敗した場合は設定を見直してください。<br>それかNetworkManagerの無効化を忘れている場合があります。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo service network restart</span><br></pre></td></tr></table></figure>
+<h1 id="動作の確認"><a href="#動作の確認" class="headerlink" title="動作の確認"></a>動作の確認</h1><p>ifconfigを叩くとbond0にIPアドレスが割り当てられていると思います。<br>また </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cat /proc/net/bonding/bond0</span><br></pre></td></tr></table></figure>
+<p>でbondingの状態が確認できます。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://kit-kimber.github.io/2018/03/31/CentOS6-8でBondingの設定を行う/" data-id="cjfffy23r00007kw096590jnx" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/CentOS6-8/">CentOS6.8</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Linux/">Linux</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+  
+</article>
+
+</section>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2018 Kit Kimber<br>
+      <a href="https://github.com/ntddk/hexo-theme-jathena" target="_blank">JAthena</a> by <a href="https://ntddk.github.io" target="_blank">ntddk</a> | Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+  </div>
+</body>
+</html>
